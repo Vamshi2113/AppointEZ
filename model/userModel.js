@@ -21,13 +21,33 @@ const User = sequelize.define('User', {
 
 
 
-  User.createUser = async function (username, password, userData, refreshToken) {
+  User.findByUsername = async function (username) {
     try {
-      const user = await User.create({ username, password ,refreshToken});
+      const user = await User.findOne({
+        where: {
+          username: username,
+        },
+      });
+  
+      return user;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+
+
+  User.createUser = async function (username, password, refreshToken, userData) {
+    try {
+      const user = await User.create({ username, password, refreshToken });
   
       // If userData is provided, create associated UserData
       if (userData) {
-        await UserData.create({ ...userData, userId: user.id });
+        // Ensure that the userId is set to the user's ID
+        const userDataInstance = { ...userData, userId: user.id };
+        
+        // Create or update UserData
+        await UserData.upsert(userDataInstance);
       }
   
       return user;
@@ -35,7 +55,6 @@ const User = sequelize.define('User', {
       throw error;
     }
   };
-  
   
   //association between User and UserData
   User.hasOne(UserData, { foreignKey: 'userId', onDelete: 'CASCADE' });

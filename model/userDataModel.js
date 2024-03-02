@@ -30,6 +30,34 @@ const UserData = sequelize.define('UserData', {
   },
 });
 
+
+
+UserData.createUserData = async function (username, email, coordinates, phoneNumber, age, gender, city, userId) {
+    try {
+      const userData = await UserData.create({
+        username,
+        email,
+        coordinates,
+        phoneNumber,
+        age,
+        gender,
+        city,
+        userId,
+      });
+  
+      return userData;
+    } catch (error) {
+      throw error;
+    }
+  };
+  
+
+
+
+
+
+
+
 // Define the association between User and UserData
 UserData.belongsTo(User, { foreignKey: 'userId', onDelete: 'CASCADE' });
 User.hasOne(UserData, { foreignKey: 'userId', onDelete: 'CASCADE' });

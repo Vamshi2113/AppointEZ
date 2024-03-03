@@ -1,8 +1,11 @@
-const User = require('../model/userModel.js');
+const { user, UserData } = require("../models");
 const refreshTokengen = require('./createRefreshToken.js');
 const bcrypt = require('bcrypt');
 
 const handleNewUser = async (req, res) => {
+  if((!user)&&(!UserData)){
+    return res.status(400).json({"usernot":"yyhfd"});
+  }
   const { password, username } = req.body;
 
   if (!username || !password) {
@@ -11,7 +14,7 @@ const handleNewUser = async (req, res) => {
 
   try {
     // Check if the username already exists
-    const checkUsername = await User.findByUsername(username);
+    const checkUsername = await user.findByUsername(username);
 
     if (checkUsername) {
       return res.status(409).json({ "message": "User already exists" });
@@ -22,7 +25,11 @@ const handleNewUser = async (req, res) => {
         // Generate refresh token
         const refreshToken = refreshTokengen.generateRefreshToken(username);
         // Create the new user
-        const user = await User.createUser(username, hashedPassword, refreshToken, req.body.userData);
+        const user = await user.createUser(username, hashedPassword, refreshToken);
+        console.log("========================",user);
+
+        if(user){await UserData.createUserData(req.body.userData, user.id);}
+        
 
         res.status(201).json({ 'success': `New user ${user.username} created!` });
       } catch (err) {
@@ -35,4 +42,6 @@ const handleNewUser = async (req, res) => {
   }
 };
 
-module.exports = handleNewUser;
+module.exports = {
+  handleNewUser,
+};

@@ -2,10 +2,11 @@ const express=require('express');
 const app=express();
 const port=80;
 const path=require('path');
-const sql=require('./MySqlConn.js');
 require('dotenv').config();
-const { sequelize } = require('./config/sqlize.js');
-
+const { sequelize } = require('./models');
+// const User = require('./model/userModel.js');
+// const UserData = require('./model/userDataModel.js');
+const signupController=require('./controllers/signupController')
 
 
 
@@ -26,10 +27,9 @@ app.set('views',path.join(__dirname,'views'));
 
 
 
-
-app.get('/',(req,res)=>{
-    res.render('home.pug');
-});
+app.use(express.urlencoded());
+app.use(express.json());
+app.use('/auth',require('./routes/register'));
 
 
 

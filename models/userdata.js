@@ -14,8 +14,9 @@ module.exports = (sequelize, DataTypes) => {
       UserData.belongsTo(models.user);
     }
 
-    static createUserData(userData, userId) {
+    static createUserData(username,userData, userId) {
       return UserData.create({
+        username:username,
         ...userData,
         userId: userId,
       });

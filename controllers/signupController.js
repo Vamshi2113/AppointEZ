@@ -25,15 +25,13 @@ const handleNewUser = async (req, res) => {
         // Generate refresh token
         const refreshToken = refreshTokengen.generateRefreshToken(username);
         // Create the new user
-        const user = await user.createUser(username, hashedPassword, refreshToken);
-        console.log("========================",user);
+        const userx = await user.createUser(username, hashedPassword, refreshToken);
 
-        if(user){await UserData.createUserData(req.body.userData, user.id);}
-        
+        await UserData.createUserData(username,req.body.userData, userx.id);
 
-        res.status(201).json({ 'success': `New user ${user.username} created!` });
+       res.status(201).json({ 'success': `New user ${userx.username} created!` });
       } catch (err) {
-        res.status(500).json({ 'message': err.message });
+        res.status(500).json({ 'message': err.message});
       }
     }
   } catch (error) {

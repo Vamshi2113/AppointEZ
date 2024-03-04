@@ -20,8 +20,39 @@ module.exports = (sequelize, DataTypes) => {
         username: username,
         password: password,
         refreshToken: refreshToken,
-      }).then(user => user.id); // Return user.id after creation
+      }) // Return user after creation
     }
+
+    static async updateUserRefreshToken(userId, newRefreshToken) {
+      try {
+        const userx = await user.findByPk(userId);
+  
+        if (userx) {
+          userx.refreshToken = newRefreshToken;
+          await userx.save();
+          return userx;
+        } else {
+          throw new Error('User not found');
+        }
+      } catch (error) {
+        throw error;
+      }
+    }
+
+
+
+    static findByRefreshToken(refreshToken) {
+      return user.findOne({
+        where: {
+          refreshToken: refreshToken,
+        },
+      });
+    }
+
+
+
+
+
   }
 
   user.init({

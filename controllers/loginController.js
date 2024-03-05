@@ -40,7 +40,7 @@ const handleLogin = async (req, res) => {
             try {
                 await user.updateUserRefreshToken(checkUsername.id, refreshToken);
 
-                res.cookie('jwt', accessToken, {
+                res.cookie('jwt', refreshToken, {
                     maxAge: 24 * 60 * 60 * 1000, // Cookie will expire in 1 day
                     httpOnly: true, // Cookie cannot be accessed by client-side JavaScript
                 });

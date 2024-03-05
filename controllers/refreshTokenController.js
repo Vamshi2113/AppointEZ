@@ -1,12 +1,18 @@
 const {user} = require("../models");
 
+const jwt = require('jsonwebtoken');
+
 
 const handleRefresh=async (req,res)=>{
+    console.log("cookie=================''''''")
+
     const cookies = req.cookies;
+    console.log("cokeie",cookies);
     if (!cookies?.jwt) return res.sendStatus(401);
     const refreshToken = cookies.jwt;
+    console.log("cookie=================",cookies.jwt)
 
-    const foundUser = user.findByRefreshToken(refreshToken);
+    const foundUser = await user.findByRefreshToken(refreshToken);
     if (!foundUser) return res.sendStatus(403); //Forbidden 
     console.log("====================\\")
     // evaluate jwt 
@@ -27,7 +33,7 @@ const handleRefresh=async (req,res)=>{
                 { expiresIn: '300s' }
             );
 
-            res.cookie('jwt', accessToken, {
+            res.cookie('jwt', refreshToken, {
                 maxAge: 24 * 60 * 60 * 1000, // Cookie will expire in 1 day
                 httpOnly: true, // Cookie cannot be accessed by client-side JavaScript
             });

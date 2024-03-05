@@ -6,8 +6,7 @@ require('dotenv').config();
 const { sequelize } = require('./models');
 // const User = require('./model/userModel.js');
 // const UserData = require('./model/userDataModel.js');
-const signupController=require('./controllers/signupController')
-
+const cookieParser = require('cookie-parser');
 
 
 
@@ -29,6 +28,9 @@ app.set('views',path.join(__dirname,'views'));
 
 app.use(express.urlencoded());
 app.use(express.json());
+app.use(cookieParser());
+
+
 app.use('/auth',require('./routes/register'));
 app.use('/login',require('./routes/login'));
 app.use('/refresh', require('./routes/refresh'));

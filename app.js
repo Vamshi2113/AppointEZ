@@ -7,7 +7,7 @@ const { sequelize } = require('./models');
 // const User = require('./model/userModel.js');
 // const UserData = require('./model/userDataModel.js');
 const cookieParser = require('cookie-parser');
-
+const verifyJWT=require('./middleware/verifyJWT.js')
 
 
 //-------------------------------------------------SQL CONNECTION--------------------------------------------------------------
@@ -36,7 +36,10 @@ app.use('/login',require('./routes/login'));
 app.use('/refresh', require('./routes/refresh'));
 
 
-
+app.use(verifyJWT);
+app.get('/test',(req,res)=>{
+  res.json({"message":"verified"});
+})
 
 
 

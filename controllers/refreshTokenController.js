@@ -7,7 +7,7 @@ const handleRefresh=async (req,res)=>{
     console.log("cookie=================''''''")
 
     const cookies = req.cookies;
-    console.log("cokeie",cookies);
+    console.log("cookie",cookies);
     if (!cookies?.jwt) return res.sendStatus(401);
     const refreshToken = cookies.jwt;
     console.log("cookie=================",cookies.jwt)

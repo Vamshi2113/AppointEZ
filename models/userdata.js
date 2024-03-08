@@ -2,6 +2,9 @@
 const {
   Model
 } = require('sequelize');
+
+
+
 module.exports = (sequelize, DataTypes) => {
   class UserData extends Model {
     /**
@@ -12,6 +15,10 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
       UserData.belongsTo(models.user);
+      
+      UserData.hasOne(models.as_user,{foreignKey: 'userDataId', onDelete: 'CASCADE'});
+      UserData.hasOne(models.as_service_provider,{foreignKey: 'userDataId', onDelete: 'CASCADE'});
+      UserData.hasMany(models.createAppointment,{foreignKey: 'userDataId', onDelete: 'CASCADE'});
     }
 
     static createUserData(username,userData, userId) {

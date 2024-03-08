@@ -1,4 +1,4 @@
-const { user, UserData } = require("../models");
+const { user, UserData,as_user} = require("../models");
 const refreshTokengen = require('./createRefreshToken.js');
 const bcrypt = require('bcrypt');
 
@@ -27,7 +27,9 @@ const handleNewUser = async (req, res) => {
         // Create the new user
         const userx = await user.createUser(username, hashedPassword, refreshToken);
 
-        await UserData.createUserData(username,req.body.userData, userx.id);
+        const userDatax=await UserData.createUserData(username,req.body.userData, userx.id);
+
+        await as_user.createAsUser(userDatax.id,username);
 
        res.status(201).json({ 'success': `New user ${userx.username} created!` });
       } catch (err) {

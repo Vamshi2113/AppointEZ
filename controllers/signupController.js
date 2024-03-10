@@ -1,4 +1,4 @@
-const { user, UserData,as_user} = require("../models");
+const { user, UserData,as_user,types} = require("../models");
 const refreshTokengen = require('./createRefreshToken.js');
 const bcrypt = require('bcrypt');
 
@@ -30,6 +30,17 @@ const handleNewUser = async (req, res) => {
         const userDatax=await UserData.createUserData(username,req.body.userData, userx.id);
 
         await as_user.createAsUser(userDatax.id,username);
+
+        const typesData = [
+          { type: "Consultation" },
+          { type: "Service A" },
+          { type: "Service B" },
+          { type: "Meeting" },
+          { type: "Appointment" },
+          // ... add more types as needed
+        ];
+    
+        await types.bulkCreate(typesData);
 
        res.status(201).json({ 'success': `New user ${userx.username} created!` });
       } catch (err) {

@@ -26,8 +26,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   as_service_provider.init({
-    current_appointments: DataTypes.INTEGER,
-    order_history: DataTypes.INTEGER
+    username: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'as_service_provider',

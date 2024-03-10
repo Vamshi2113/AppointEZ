@@ -18,13 +18,16 @@ module.exports = (sequelize, DataTypes) => {
       createAppointment.hasMany(models.bookedAppointments,{ foreignKey: 'createAppointmentId' ,onDelete: 'CASCADE'})
       createAppointment.hasMany(models.ratings,{ foreignKey: 'createAppointmentId' ,onDelete: 'CASCADE'})
       
-      
+    }
+
+    static createAppointmentMethod(appointmentData) {
+      return this.create(appointmentData);
     }
   }
   createAppointment.init({
     username: DataTypes.STRING,
-    from_time: DataTypes.TIME,
-    to_time: DataTypes.TIME,
+    from_time: DataTypes.STRING,
+    to_time: DataTypes.STRING,
     at: DataTypes.STRING,
     desc: DataTypes.TEXT,
     cost: DataTypes.INTEGER

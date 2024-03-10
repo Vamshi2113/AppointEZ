@@ -1,6 +1,7 @@
-const { user } = require("../models");
+const { user,UserData,as_user,as_service_provider,types } = require("../models");
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+
 
 const handleLogin = async (req, res) => {
 
@@ -12,8 +13,29 @@ const handleLogin = async (req, res) => {
 
   try {
     // Check if the username already exists
-    const checkUsername = await user.findByUsername(username);
+    const role=[];
+    const checkUsername = await user.findOne({
+      where: {
+        username: username,
+      },include:[UserData]
+    });
 
+    const userRoles=await UserData.findOne({
+      where: {
+        username: username,
+      },include:[as_user,as_service_provider]
+    });
+
+    if (userRoles.as_user) {
+      role.push("user");
+    }
+    
+    if (userRoles.as_service_provider) {
+      role.push("serviceProvider");
+    }
+
+    
+  
     if (!checkUsername) {
         return res.status(400).json({ "message": "Invalid user" });
     } else {
@@ -25,7 +47,8 @@ const handleLogin = async (req, res) => {
             const accessToken = jwt.sign(
                 {
                     "UserInfo": {
-                        "username": checkUsername.username,   
+                        "username": checkUsername.username,
+                        "roles":role   
                     }
                 },
                 process.env.ACCESS_TOKEN_SECRET,
@@ -45,7 +68,10 @@ const handleLogin = async (req, res) => {
                     httpOnly: true, // Cookie cannot be accessed by client-side JavaScript
                 });
 
-                return res.json({ accessToken });
+
+                
+
+                return res.json({ accessToken,"roles":role});
             } catch (err) {
                 return res.sendStatus(500);
             }

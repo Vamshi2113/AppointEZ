@@ -40,12 +40,12 @@ app.get('/test',async(req,res)=>{
  res.json({"out":userrolesx});
 })
 
-
- 
 app.use(verifyJWT);
 
+app.use('/serviceprovider',require('./routes/serviceProvider.js'))
 
 
+ 
 
 //---------------------------------------------------------sqlize-------------------------------------------------
 sequelize.sync({ force: true })

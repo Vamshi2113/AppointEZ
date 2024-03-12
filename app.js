@@ -14,7 +14,6 @@ const verifyJWT=require('./middleware/verifyJWT.js');
 
 
 
-
 app.use('/static',express.static('static'));
 app.set('static',path.join(__dirname,'static'))
 
@@ -45,10 +44,11 @@ app.use(verifyJWT);
 app.use('/serviceprovider',require('./routes/serviceProvider.js'))
 
 
+
  
 
 //---------------------------------------------------------sqlize-------------------------------------------------
-sequelize.sync({ force: true })
+sequelize.sync({ force: true })                                                                       
   .then(() => {
     console.log('Database synced');
   })

@@ -70,7 +70,7 @@ const handleLogin = async (req, res) => {
 
 
                 
-
+                res.setHeader('Authorization', `Bearer ${accessToken}`);
                 return res.json({ accessToken,"roles":role});
             } catch (err) {
                 return res.sendStatus(500);

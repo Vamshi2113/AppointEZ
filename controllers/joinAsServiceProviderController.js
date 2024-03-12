@@ -21,7 +21,7 @@ const handleJoinAsServiceProvider = async (req, res) => {
 
     await as_service_provider.create({ username: username, userDataId: userData.id })
       .then(() => {
-        res.status(200).json({ 'message': 'Joined as a service provider' });
+        res.redirect('/login')
       })
       .catch((err) => {
         res.status(400).json({ 'message': 'Operation failed', 'error': err });

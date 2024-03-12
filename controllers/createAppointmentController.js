@@ -29,7 +29,7 @@ const handlecreateAppointment=async(req,res)=>{
         },include:[as_service_provider]
     }
     );
-
+    
     const type=await types.findOne({
         where:{
             type:req.body.type
@@ -49,13 +49,13 @@ const handlecreateAppointment=async(req,res)=>{
     }
 
     createAppointment.createAppointmentMethod(appointment).then((newAppoint)=>{
-        return res.status(200).json({"message":newAppoint,"m":user})
+        return res.status(200).json({"message":newAppoint})
     }).catch((err)=>{
-        return res.status(400).json({"message":err,"m":user});
+        return res.status(400).json({"message":err});
     })
 
 }catch(err){
-    return res.status(400).json({"message":err,"m":user});
+    return res.status(400).json({"message":err});
 }
 
 }

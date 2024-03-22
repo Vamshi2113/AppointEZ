@@ -4,8 +4,6 @@ const port=80;
 const path=require('path');
 require('dotenv').config();
 const { sequelize,user,UserData,as_user } = require('./models');
-// const User = require('./model/userModel.js');
-// const UserData = require('./model/userDataModel.js');
 const cookieParser = require('cookie-parser');
 const verifyJWT=require('./middleware/verifyJWT.js');
 
@@ -42,6 +40,7 @@ app.get('/test',async(req,res)=>{
 app.use(verifyJWT);
 
 app.use('/serviceprovider',require('./routes/serviceProvider.js'))
+app.use('/user',require('./routes/users.js'))
 
 
 
@@ -64,7 +63,7 @@ app.listen(port,()=>{
     console.log(`running on port ${port}`);
 })
 
-
+ 
 
 
 

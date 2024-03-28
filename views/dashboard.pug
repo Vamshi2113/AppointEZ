@@ -1,0 +1,223 @@
+// dashboard.pug
+
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title User Dashboard
+    link(href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css", rel="stylesheet")
+    style.
+      body {
+          background-image: url('../static/rylan-hill-3o6NXErKXwo-unsplash.jpg');
+          background-size: cover;
+          background-position: center;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          flex-direction: column;
+          height: 100vh;
+          margin: 0;
+          padding: 0;
+      }
+      .navbar {
+          background-color: rgba(255, 255, 255, 0.5);
+          width: 100%;
+      }
+      .navbar-brand {
+          color: #000;
+          font-weight: bold;
+      }
+      .navbar-nav {
+          margin-left: auto;
+          margin-right: auto;
+          display: flex;
+          align-items: center;
+      }
+      .navbar-nav .nav-item {
+          margin-right: 15px;
+      }
+      .navbar-nav .nav-link {
+          color: #000;
+          font-weight: bold;
+      }
+      .dashboard-container {
+          background: rgba(255, 255, 255, 0.2);
+          border-radius: 8px;
+          box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+          backdrop-filter: blur(5px);
+          -webkit-backdrop-filter: blur(5px);
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          padding: 20px;
+          max-width: 800px;
+          width: 100%;
+          margin: auto;
+          height: 80%;
+          overflow-y: auto;
+      }
+      .dashboard-container::-webkit-scrollbar { 
+          width: 16px;
+          border-radius: 16px;
+      }
+      .dashboard-container::-webkit-scrollbar-thumb {
+          background-color: #888;
+          border-radius: 16px;
+      }
+      .dashboard-container::-webkit-scrollbar-track {
+          background-color: #6d6d6d5a;
+          border-radius: 16px;
+      }
+      .card {
+          margin-bottom: 20px;
+          background-color: rgba(192, 192, 192, 0.3);
+          border-radius: 30px;
+      }
+      .card-header {
+          text-align: center;
+          font-weight: bold;
+          border-top-left-radius: 30px;
+          border-top-right-radius: 30px;
+          padding: 10px 20px;
+      }
+      .card-body {
+          display: flex;
+          padding: 20px;
+          flex-direction: column;
+          align-items: center;
+      }
+      .btn-cancel-appointment {
+          width: 40%;
+          border-radius: 35px;
+          margin-top: 20px;
+      }
+
+  body
+    nav.navbar.navbar-expand-lg.navbar-light
+      a.navbar-brand(href="#") #{username}
+      button.navbar-toggler(type="button", data-toggle="collapse", data-target="#navbarNav", aria-controls="navbarNav", aria-expanded="false", aria-label="Toggle navigation")
+        span.navbar-toggler-icon
+      .collapse.navbar-collapse#navbarNav
+        ul.navbar-nav
+          li.nav-item.active
+            a.nav-link(href="#" onclick="fetchAppointments()") My appointments
+          li.nav-item
+            a.nav-link(href="#" onclick="fetchNearbyServices()") Nearby Services
+          li.nav-item
+            a.nav-link(href="#" onclick="fetchProfile()") Profile
+          li.nav-item
+            a.nav-link(href="#" onclick="fetchSettings()") Settings
+          li.nav-item
+            a.nav-link(href="#" onclick="myServices()") My Services
+
+    .dashboard-container#dashboard-container
+      //- Cards will be dynamically added here
+
+  script(src="https://code.jquery.com/jquery-3.5.1.slim.min.js")
+  script(src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js")
+  script(src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js")
+  script.
+    function fetchAppointments() {
+      // You can make AJAX request here to fetch appointments data from your API
+      // Example:
+      // $.get("your_api_endpoint_for_appointments", function(data) {
+      //   // Process the received data and generate cards
+      //   generateCards(data);
+      // });
+      
+      // Dummy data for demonstration
+      const dummyData = [
+        { name: "Appointment 1", description: "Description of appointment 1", time: "10:00 AM - 11:00 AM", rating: "5 stars" },
+        { name: "Appointment 2", description: "Description of appointment 2", time: "11:00 AM - 12:00 PM", rating: "4 stars" }
+      ];
+
+      generateCards(dummyData);
+    }
+
+    // Similar functions for other navbar options: fetchNearbyServices, fetchProfile, fetchSettings
+
+    function generateCards(data) {
+      const container = document.getElementById("dashboard-container");
+      container.innerHTML = ""; // Clear previous content
+
+      data.forEach(appointment => {
+        const card = document.createElement("div");
+        card.classList.add("card");
+
+        const header = document.createElement("div");
+        header.classList.add("card-header");
+        header.textContent = appointment.name;
+
+        const body = document.createElement("div");
+        body.classList.add("card-body");
+
+        const title = document.createElement("h5");
+        title.classList.add("card-title");
+        title.textContent = "Description";
+
+        const description = document.createElement("p");
+        description.classList.add("card-text");
+        description.textContent = appointment.description;
+
+        const time = document.createElement("p");
+        time.classList.add("card-text");
+        time.textContent = "Time: " + appointment.time;
+
+        const rating = document.createElement("p");
+        rating.classList.add("card-text");
+        rating.textContent = "Rating: " + appointment.rating;
+
+        const cancelButton = document.createElement("button");
+        cancelButton.type = "button";
+        cancelButton.classList.add("btn", "btn-danger", "btn-cancel-appointment");
+        cancelButton.textContent = "Cancel Appointment";
+
+        body.appendChild(title);
+        body.appendChild(description);
+        body.appendChild(time);
+        body.appendChild(rating);
+        body.appendChild(cancelButton);
+
+        card.appendChild(header);
+        card.appendChild(body);
+
+        container.appendChild(card);
+      });
+    }
+
+    function logout() {
+      // Code to handle logout
+      console.log("Logout clicked.");
+    }
+
+    // You can implement similar functions for other navbar options
+
+    // Initial fetch
+    fetchAppointments();
+
+    // Verify JWT token and handle response
+    async function verifyToken() {
+      try {
+        const response = await fetch('/verify', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+          }
+        });
+
+        if (response.ok) {
+          const res=await response.json()
+          const username =res.user;
+
+         document.querySelector('.navbar-brand').innerText = `User Dashboard - ${username}`;
+          
+        } else {
+          // Token is invalid, redirect to login page
+          window.location.href = '/login';
+        }
+      } catch (error) {
+        console.error('Error verifying token:', error);
+      }
+    }
+
+    // Call verifyToken function when the page loads
+    window.addEventListener('load', verifyToken);

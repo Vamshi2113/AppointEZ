@@ -1,0 +1,173 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title Registration Form
+    link(href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css", rel="stylesheet")
+    script(src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js") // Import Axios for making HTTP requests
+    style.
+      body {
+          background-image: url('../static/rylan-hill-3o6NXErKXwo-unsplash.jpg');
+          background-size: cover;
+          background-position: center;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100vh;
+          margin: 0;
+          padding: 0;
+      }
+      .registration-container {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100%;
+      }
+      .registration-form {
+          background: rgba(255, 255, 255, 0.2);
+          border-radius: 16px;
+          box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+          backdrop-filter: blur(5px);
+          -webkit-backdrop-filter: blur(5px);
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          padding: 20px;
+          max-width: 400px;
+          width: 100%;
+      }
+      .registration-form label {
+          color: #000;
+      }
+      .registration-form .form-control {
+          margin-bottom: 15px;
+      }
+      .btn-primary {
+          border-radius: 20px;
+          margin-top: 10px;
+      }
+      .btn-secondary {
+          margin-top: 10px;
+      }
+      .btn-submit {
+          margin-top: 10px;
+      }
+      .step {
+          display: none;
+      }
+      .step.active {
+          display: block;
+      }
+  body
+    .container
+      .row.justify-content-center
+        .col-md-8.col-sm-10.col-xs-12.registration-container
+          .registration-form
+            h2.text-center.mb-4 Registration
+            form#registrationForm(action="#" method="post") // Change action to "#" to prevent form submission
+              .step.active#step1
+                .form-group
+                  label(for="username") Username
+                  input#username.form-control(type="text", name="username", placeholder="Enter username", required)
+                .form-group
+                  label(for="password") Password
+                  input#password.form-control(type="password", name="password", placeholder="Enter password", required)
+                .form-group
+                  label(for="email") Email
+                  input#email.form-control(type="email", name="email", placeholder="Enter email", required)
+                button.btn.btn-primary.btn-block(type="button", onclick="nextStep(1)") Next
+              .step#step2
+                .form-group
+                  label(for="coordinates") Coordinates
+                  input#coordinates.form-control(type="text", name="coordinates", placeholder="Enter coordinates", readonly, required)
+                .form-group
+                  label(for="phoneNumber") Phone Number
+                  input#phoneNumber.form-control(type="tel", name="phoneNumber", placeholder="Enter phone number", required)
+                .form-group
+                  label(for="age") Age
+                  input#age.form-control(type="number", name="age", placeholder="Enter age", required)
+                .form-group
+                  label(for="gender") Gender
+                  select.form-control#gender(name="gender", required)
+                    option(value="") Select gender
+                    option(value="male") Male
+                    option(value="female") Female
+                    option(value="other") Other
+                button.btn.btn-secondary.mr-2(type="button", onclick="prevStep(2)") Back
+                button.btn.btn-primary(type="submit") Register
+
+    script.
+      function nextStep(currentStep) {
+          document.getElementById(`step${currentStep}`).classList.remove('active');
+          document.getElementById(`step${currentStep + 1}`).classList.add('active');
+          if (currentStep + 1 === 2) {
+              getLocation();
+          }
+      }
+
+      function prevStep(currentStep) {
+          document.getElementById(`step${currentStep}`).classList.remove('active');
+          document.getElementById(`step${currentStep - 1}`).classList.add('active');
+      }
+
+      function getLocation() {
+          if (navigator.geolocation) {
+              navigator.geolocation.getCurrentPosition(showPosition);
+          } else {
+              console.error("Geolocation is not supported by this browser.");
+          }
+      }
+
+      function showPosition(position) {
+          const latitude = position.coords.latitude;
+          const longitude = position.coords.longitude;
+          const coordinatesInput = document.getElementById('coordinates');
+          coordinatesInput.value = `${latitude}° N, ${longitude}° W`;
+      }
+
+      // Event listener for form submission
+      document.getElementById('registrationForm').addEventListener('submit', async function(event) {
+          event.preventDefault(); // Prevent default form submission
+
+          // Construct the JSON body
+          const formData = new FormData(this);
+          const userData = {
+              email: formData.get('email'),
+              coordinates: formData.get('coordinates'),
+              phoneNumber: formData.get('phoneNumber'),
+              age: formData.get('age'),
+              gender: formData.get('gender'),
+              city: "New York" // Assuming city is static
+          };
+          const requestBody = {
+              username: formData.get('username'),
+              password: formData.get('password'),
+              userData: userData
+          };
+
+          console.log('Form Data:', requestBody); // Log the form data
+
+          try {
+              const response = await fetch('/auth', {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify(requestBody)
+              });
+
+              if (response.status === 201) {
+                  // Registration successful
+                  console.log('Registration successful');
+                  redirectToLogin();
+              } else {
+                  // Registration failed
+                  console.error('Registration failed');
+              }
+          } catch (error) {
+              console.error('Error during registration:', error);
+          }
+      });
+
+      function redirectToLogin() {
+          window.location.href = '/login'; // Redirect to login page after successful registration
+      }

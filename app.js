@@ -31,29 +31,40 @@ app.use('/login',require('./routes/login'));
 app.use('/refresh', require('./routes/refresh'));
 
 
-app.get('/test',async(req,res)=>{
- const out= await user.findByPk(1,{include:[UserData]});
- const userrolesx=await as_user.findByPk(1,{include:[UserData]});
- res.json({"out":userrolesx});
+app.get('/dashboard',async(req,res)=>{
+    res.render('dashboard');
 })
 
-app.use(verifyJWT);
 
-app.use('/serviceprovider',require('./routes/serviceProvider.js'))
-app.use('/user',require('./routes/users.js'))
 
+
+// app.use(verifyJWT);
+
+app.use('/serviceprovider',verifyJWT,require('./routes/serviceProvider.js'))
+app.use('/user',verifyJWT,require('./routes/users.js'))
+app.use('/verify',verifyJWT,require('./routes/auth.js'))
 
 
  
 
 //---------------------------------------------------------sqlize-------------------------------------------------
-sequelize.sync({ force: true })                                                                       
-  .then(() => {
-    console.log('Database synced');
-  })
-  .catch((err) => {
-    console.error('Error syncing database:', err);
-  });
+// sequelize.sync({ force: true })                                                                       
+//   .then(() => {
+//     console.log('Database synced');
+//   })
+//   .catch((err) => {
+//     console.error('Error syncing database:', err);
+//   });
+
+
+
+sequelize.sync() // Remove { force: true } to prevent dropping tables
+    .then(() => {
+        console.log('Database synced');
+    })
+    .catch((err) => {
+        console.error('Error syncing database:', err);
+    });
 
 
 //----------------------------------------------------------------------------------------------------------------

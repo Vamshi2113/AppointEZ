@@ -3,10 +3,10 @@ const refreshTokengen = require('./createRefreshToken.js');
 const bcrypt = require('bcrypt');
 
 const handleNewUser = async (req, res) => {
-  if((!user)&&(!UserData)){
-    return res.status(400).json({"usernot":"yyhfd"});
-  }
+  console.log("=============",req.body)
+ 
   const { password, username } = req.body;
+  console.log("=============",req.body)
 
   if (!username || !password) {
     return res.status(400).json({ "message": "Enter username and password" });

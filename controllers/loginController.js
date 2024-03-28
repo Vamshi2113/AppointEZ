@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 
 
 const handleLogin = async (req, res) => {
+  console.log("================",req.body)
 
   const { password, username } = req.body;
 
@@ -70,8 +71,8 @@ const handleLogin = async (req, res) => {
 
 
                 
-                res.setHeader('Authorization', `Bearer ${accessToken}`);
-                return res.json({ accessToken,"roles":role});
+              
+                return res.status(201).json({ accessToken,"roles":role});
             } catch (err) {
                 return res.sendStatus(500);
             }

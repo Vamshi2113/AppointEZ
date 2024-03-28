@@ -1,0 +1,79 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title Login Form
+    link(href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css", rel="stylesheet")
+    style.
+      body {
+          background-image: url('../static/rylan-hill-3o6NXErKXwo-unsplash.jpg');
+          background-size: cover;
+          background-position: center;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100vh;
+          margin: 0;
+          padding: 0;
+      }
+      .login-form {
+          background: rgba(255, 255, 255, 0.2);
+          border-radius: 16px;
+          box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+          backdrop-filter: blur(5px);
+          -webkit-backdrop-filter: blur(5px);
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          padding: 20px;
+          max-width: 400px;
+          width: 100%;
+          width: 300px;
+          margin: auto; /* Center horizontally */
+      }
+  body
+    .container
+      .row.justify-content-center
+        .col-md-6.col-sm-8.col-xs-12.login-container
+          .login-form
+            h2.text-center.mb-4 Login
+            form#loginForm
+              .form-group
+                input.form-control(type="text", id="username", placeholder="Email", required)
+              .form-group
+                input.form-control(type="password", id="password", placeholder="Password", required)
+              button.btn.btn-primary.btn-block(type="submit") Login
+            p.mt-3.text-center Don't have an account? 
+              a(href="/auth") Sign Up
+  script.
+    document.getElementById('loginForm').addEventListener('submit', async function(event) {
+        event.preventDefault(); // Prevent the form from submitting normally
+
+        // Get user credentials
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        // Send login request to the server
+        try {
+            const response = await fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+
+                // Store access token in local storage
+                localStorage.setItem('accessToken', data.accessToken);
+
+                // Redirect to the dashboard page without reloading
+                window.location.href = '/dashboard'; 
+            } else {
+                console.error('Login failed:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Error during login:', error);
+        }
+    });

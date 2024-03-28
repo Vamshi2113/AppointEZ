@@ -30,7 +30,8 @@ module.exports = (sequelize, DataTypes) => {
     to_time: DataTypes.STRING,
     at: DataTypes.STRING,
     desc: DataTypes.TEXT,
-    cost: DataTypes.INTEGER
+    cost: DataTypes.INTEGER,
+    name: DataTypes.TEXT
   }, {
     sequelize,
     modelName: 'createAppointment',

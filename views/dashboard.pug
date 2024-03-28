@@ -1,5 +1,3 @@
-// dashboard.pug
-
 doctype html
 html(lang="en")
   head
@@ -99,15 +97,15 @@ html(lang="en")
       .collapse.navbar-collapse#navbarNav
         ul.navbar-nav
           li.nav-item.active
-            a.nav-link(href="#" onclick="fetchAppointments()") My appointments
+            a.nav-link(onclick="fetchAppointments()") My appointments
           li.nav-item
-            a.nav-link(href="#" onclick="fetchNearbyServices()") Nearby Services
+            a.nav-link(onclick="fetchNearbyServices()") Nearby Services
           li.nav-item
-            a.nav-link(href="#" onclick="fetchProfile()") Profile
+            a.nav-link(onclick="fetchProfile()") Profile
           li.nav-item
-            a.nav-link(href="#" onclick="fetchSettings()") Settings
+            a.nav-link(onclick="fetchSettings()") Settings
           li.nav-item
-            a.nav-link(href="#" onclick="myServices()") My Services
+            a.nav-link(onclick="myServices()") My Services
 
     .dashboard-container#dashboard-container
       //- Cards will be dynamically added here
@@ -116,24 +114,80 @@ html(lang="en")
   script(src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js")
   script(src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js")
   script.
+    async function cancelAppointment(appointmentId) {
+        try {
+          const response = await fetch(`user/deleteAppointment/${appointmentId}`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+            }
+          });
+          
+          if (response.ok) {
+            // Success message or any further action
+            console.log(`Appointment ${appointmentId} cancelled successfully.`);
+            const cardToRemove = document.getElementById(appointmentId);
+            if (cardToRemove) {
+                cardToRemove.remove();
+                console.log(`Appointment card with ID ${appointmentId} removed.`);
+            } else {
+                console.error(`Unable to find card with ID ${appointmentId} to remove.`);
+            }
+          } else {
+            // Error handling
+            console.error('Failed to cancel appointment:', response.statusText);
+          }
+        } catch (error) {
+          console.error('Error cancelling appointment:', error);
+        }
+    }       
+    
     function fetchAppointments() {
-      // You can make AJAX request here to fetch appointments data from your API
-      // Example:
-      // $.get("your_api_endpoint_for_appointments", function(data) {
-      //   // Process the received data and generate cards
-      //   generateCards(data);
-      // });
-      
-      // Dummy data for demonstration
-      const dummyData = [
-        { name: "Appointment 1", description: "Description of appointment 1", time: "10:00 AM - 11:00 AM", rating: "5 stars" },
-        { name: "Appointment 2", description: "Description of appointment 2", time: "11:00 AM - 12:00 PM", rating: "4 stars" }
-      ];
+        fetch('user/myAppointments', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        }
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to fetch booked appointments');
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log("==",data.message)
+        generateCards(data.message); // Assuming data is an array of nearby services
+      })
+      .catch(error => {
+        console.error('Error fetching booked appointments:', error);
+      });
+    }
+    
 
-      generateCards(dummyData);
+    function fetchNearbyServices() {
+      fetch('user/findAppointments', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        }
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to fetch nearby services');
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log("==",data.message)
+        generateCards(data.message); // Assuming data is an array of nearby services
+      })
+      .catch(error => {
+        console.error('Error fetching nearby services:', error);
+      });
     }
 
-    // Similar functions for other navbar options: fetchNearbyServices, fetchProfile, fetchSettings
+    // Similar functions for other navbar options: fetchProfile, fetchSettings, myServices
 
     function generateCards(data) {
       const container = document.getElementById("dashboard-container");
@@ -156,24 +210,36 @@ html(lang="en")
 
         const description = document.createElement("p");
         description.classList.add("card-text");
-        description.textContent = appointment.description;
+        description.textContent = appointment.desc; 
 
-        const time = document.createElement("p");
-        time.classList.add("card-text");
-        time.textContent = "Time: " + appointment.time;
+        const from_time = document.createElement("p");
+        from_time.classList.add("card-text");
+        from_time.textContent = "From Time: " + appointment.from_time;
+
+        const to_time = document.createElement("p");
+        to_time.classList.add("card-text");
+        to_time.textContent = "To Time: " + appointment.to_time;
 
         const rating = document.createElement("p");
         rating.classList.add("card-text");
-        rating.textContent = "Rating: " + appointment.rating;
+        if(!appointment.rating){
+            appointment.rating=0;
+        }
+        rating.textContent = "Rating: " + appointment.rating +" stars";
 
         const cancelButton = document.createElement("button");
         cancelButton.type = "button";
+        cancelButton.id = appointment.id;
         cancelButton.classList.add("btn", "btn-danger", "btn-cancel-appointment");
         cancelButton.textContent = "Cancel Appointment";
+        cancelButton.addEventListener("click", function() {
+            cancelAppointment(appointment.id);
+        });
 
         body.appendChild(title);
         body.appendChild(description);
-        body.appendChild(time);
+        body.appendChild(from_time);
+        body.appendChild(to_time);
         body.appendChild(rating);
         body.appendChild(cancelButton);
 
@@ -196,6 +262,9 @@ html(lang="en")
 
     // Verify JWT token and handle response
     async function verifyToken() {
+        if(!localStorage.getItem('accessToken')){
+            return window.location.href = '/login';
+        }
       try {
         const response = await fetch('/verify', {
           method: 'GET',

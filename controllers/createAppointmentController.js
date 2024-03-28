@@ -43,6 +43,7 @@ const handlecreateAppointment=async(req,res)=>{
         at: user.coordinates,
         desc: req.body.desc,
         cost: req.body.cost,
+        name:req.body.name,
         serviceProviderId:user.as_service_provider.id,
         userDataId:user.id,
         typeId:type.id

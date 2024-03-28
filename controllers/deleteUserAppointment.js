@@ -3,6 +3,7 @@ const { as_user, bookedAppointments } = require('../models');
 const handleDeleteAppointment = async (req, res) => {
     const id = req.params.id;
     const username = req.user;
+    console.log(id,username)
 
     try {
         // Find the user by username
@@ -31,7 +32,7 @@ const handleDeleteAppointment = async (req, res) => {
         // Delete the appointment
         await appointment.destroy();
 
-        return res.status(200).json({ 'message': 'Appointment deleted successfully' });
+        return res.status(201).json({ 'message': 'Appointment deleted successfully' });
     } catch (err) {
         console.error('Error deleting appointment:', err);
         return res.status(500).json({ 'message': 'Internal server error' });

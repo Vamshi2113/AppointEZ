@@ -25,6 +25,7 @@ module.exports = (sequelize, DataTypes) => {
       return UserData.create({
         username:username,
         ...userData,
+        credits:100,
         userId: userId,
       });
     }
@@ -37,6 +38,7 @@ module.exports = (sequelize, DataTypes) => {
     coordinates: DataTypes.STRING,
     phoneNumber: DataTypes.STRING,
     age: DataTypes.INTEGER,
+    credits: DataTypes.INTEGER,
     gender: DataTypes.STRING,
     city: DataTypes.STRING
   }, {

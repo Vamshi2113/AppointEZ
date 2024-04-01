@@ -1,0 +1,630 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title Admin Dashboard
+    link(href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css", rel="stylesheet")
+    
+    style.
+      body {
+          background-image: url('../static/rylan-hill-3o6NXErKXwo-unsplash.jpg');
+          background-size: cover;
+          background-position: center;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          flex-direction: column;
+          height: 100vh;
+          margin: 0;
+          padding: 0;
+      }
+      .navbar {
+          background-color: rgba(255, 255, 255, 0.5);
+          width: 100%;
+      }
+      .navbar-brand {
+          color: #000;
+          font-weight: bold;
+      }
+      .navbar-nav {
+          margin-left: auto;
+          margin-right: auto;
+          display: flex;
+          align-items: center;
+      }
+      .navbar-nav .nav-item {
+          margin-right: 15px;
+      }
+      .navbar-nav .nav-link {
+          color: #000;
+          font-weight: bold;
+      }
+      .dashboard-container {
+          background: rgba(255, 255, 255, 0.2);
+          border-radius: 8px;
+          box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+          backdrop-filter: blur(5px);
+          -webkit-backdrop-filter: blur(5px);
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          padding: 20px;
+          max-width: 800px;
+          width: 100%;
+          margin: auto;
+          height: 80%;
+          overflow-y: auto;
+      }
+      .dashboard-container::-webkit-scrollbar { 
+          width: 16px;
+          border-radius: 16px;
+      }
+      .dashboard-container::-webkit-scrollbar-thumb {
+          background-color: #888;
+          border-radius: 16px;
+      }
+      .dashboard-container::-webkit-scrollbar-track {
+          background-color: #6d6d6d5a;
+          border-radius: 16px;
+      }
+      .card {
+          margin-bottom: 20px;
+          background-color: rgba(192, 192, 192, 0.3);
+          border-radius: 30px;
+          transition: opacity 0.5s ease; /* Add opacity transition */
+      }
+      .card-header {
+          text-align: center;
+          font-weight: bold;
+          border-top-left-radius: 30px;
+          border-top-right-radius: 30px;
+          padding: 10px 20px;
+      }
+      .card-body {
+          display: flex;
+          padding: 20px;
+          flex-direction: column;
+          align-items: center;
+      }
+      .btn-cancel-appointment, .btn-delete-service {
+          width: 40%;
+          border-radius: 35px;
+          margin-top: 20px;
+      }
+      .button-container {
+          display: flex;
+          justify-content: center;
+          margin-top: 10px; /* Adjust this value to control the space between button and card content */
+      }
+      .notification {
+          position: fixed;
+          bottom: 30px;
+          left: 50%;
+          transform: translateX(-50%);
+          padding: 15px 30px;
+          border-radius: 10px;
+          background-color: #007bff;
+          color: #ffffff;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          opacity: 0;
+          visibility: hidden;
+          transition: opacity 0.5s ease, visibility 0.5s ease;
+          z-index: 1000;
+      }
+      .notification.show {
+          opacity: 1;
+          visibility: visible;
+      }
+      .form-card {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+      }
+      .form-group {
+          width: 100%;
+          margin-bottom: 20px;
+      }
+      .form-group label {
+          font-weight: bold;
+      }
+      .form-group input {
+          width: calc(100% - 20px);
+          padding: 10px;
+          border-radius: 10px;
+          border: 1px solid #ccc;
+          margin-top: 5px;
+      }
+
+  body
+    nav.navbar.navbar-expand-lg.navbar-light
+      a.navbar-brand(href="#") Admin Dashboard
+      button.navbar-toggler(type="button", data-toggle="collapse", data-target="#navbarNav", aria-controls="navbarNav", aria-expanded="false", aria-label="Toggle navigation")
+        span.navbar-toggler-icon
+      .collapse.navbar-collapse#navbarNav
+        ul.navbar-nav
+          li.nav-item.active
+            a.nav-link(onclick="fetchAppointments()") Appointments
+          li.nav-item
+            a.nav-link(onclick="fetchClients()") Current Clients
+          li.nav-item
+            a.nav-link(onclick="fetchProfile()") Profile
+          li.nav-item
+             a.nav-link(onclick="user()") User
+          li.nav-item 
+             a.nav-link(onclick="showCreateServiceForm()") Create Appointment
+
+
+    .dashboard-container#dashboard-container
+      //- Cards will be dynamically added here
+
+    .notification#notification
+      | 
+
+    script(src="https://code.jquery.com/jquery-3.5.1.slim.min.js")
+    script(src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js")
+    script(src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js")
+    script.
+      async function user() {
+        // Function to fetch clients
+        window.location.href = '/dashboard';
+      }
+
+      async function fetchAppointments() {
+          try {
+              const response = await fetch('serviceprovider/myAppointments', {
+                  method: 'GET',
+                  headers: {
+                      'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+                      'Accept': 'application/json'
+                  }
+              });
+      
+              if (!response.ok) {
+                  throw new Error('Failed to fetch appointments');
+              }
+      
+              const data = await response.json();
+              console.log("Appointments:", data.message); // Optional: log the fetched data
+      
+              // Call function to generate cards with the fetched data
+              generateAppointmentCards(data.message);
+          } catch (error) {
+              console.error('Error fetching appointments:', error);
+          }
+      }
+
+      async function fetchClients() {
+          try {
+              const response = await fetch('serviceprovider/currentClients', {
+                  method: 'GET',
+                  headers: {
+                      'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+                      'Accept': 'application/json'
+                  }
+              });
+      
+              if (!response.ok) {
+                  throw new Error('Failed to fetch current clients');
+              }
+      
+              const data = await response.json();
+              console.log("Current Clients:", data.message); // Optional: log the fetched data
+      
+              // Call function to generate cards with the fetched data
+              generateClientCards(data.message);
+          } catch (error) {
+              console.error('Error fetching current clients:', error);
+          }
+      }
+
+      function generateAppointmentCards(data) {
+          const container = document.getElementById("dashboard-container");
+          container.innerHTML = ""; // Clear previous content
+          
+          data.forEach(appointment => {
+              const card = document.createElement("div");
+              card.classList.add("card");
+              card.id = appointment.id;
+      
+              const header = document.createElement("div");
+              header.classList.add("card-header");
+              header.textContent = appointment.name || "Appointment";
+      
+              const body = document.createElement("div");
+              body.classList.add("card-body");
+      
+              const title = document.createElement("h5");
+              title.classList.add("card-title");
+              title.textContent = "Description";
+      
+              const description = document.createElement("p");
+              description.classList.add("card-text");
+              description.textContent = appointment.desc || "No description provided"; 
+      
+              const from_time = document.createElement("p");
+              from_time.classList.add("card-text");
+              from_time.textContent = "From Time: " + new Date(appointment.from_time).toLocaleString();
+      
+              const to_time = document.createElement("p");
+              to_time.classList.add("card-text");
+              to_time.textContent = "To Time: " + new Date(appointment.to_time).toLocaleString();
+      
+              const cost = document.createElement("p");
+              cost.classList.add("card-text");
+              cost.textContent = "Cost: $" + appointment.cost;
+      
+              const location = document.createElement("p");
+              location.classList.add("card-text");
+              location.textContent = "Location: " + appointment.at;
+
+              const deleteButton = document.createElement("button");
+              deleteButton.type = "button";
+              deleteButton.classList.add("btn", "btn-danger", "btn-delete-service");
+              deleteButton.textContent = "Delete Service";
+              deleteButton.addEventListener("click", function() {
+                  deleteService(appointment.id);
+              });
+      
+              body.appendChild(title);
+              body.appendChild(description);
+              body.appendChild(from_time);
+              body.appendChild(to_time);
+              body.appendChild(cost);
+              body.appendChild(location);
+              body.appendChild(deleteButton);
+      
+              card.appendChild(header);
+              card.appendChild(body);
+      
+              container.appendChild(card);
+          });
+      }
+      function generateClientCards(data) {
+          const container = document.getElementById("dashboard-container");
+          container.innerHTML = ""; // Clear previous content
+          
+          data.forEach(client => {
+              client.bookedAppointments.forEach(appointment => {
+                  const card = document.createElement("div");
+                  card.classList.add("card");
+                  card.id = appointment.id;
+                  
+                  const header = document.createElement("div");
+                  header.classList.add("card-header");
+                  header.textContent = client.name || "Client";
+                  
+                  const body = document.createElement("div");
+                  body.classList.add("card-body");
+                  body.style.display = "flex";
+                  body.style.flexDirection = "column";
+                  body.style.alignItems = "center";
+                  
+                  const title = document.createElement("h5");
+                  title.classList.add("card-title");
+                  title.textContent = "Client Information";
+                  
+                  const userDetails = document.createElement("p");
+                  userDetails.classList.add("card-text");
+                  userDetails.textContent = `Name: ${appointment.as_user.username}, Created At: ${new Date(appointment.createdAt).toLocaleString()}`;
+                  
+                  const completeButton = document.createElement("button");
+                  completeButton.type = "button";
+                  completeButton.classList.add("btn", "btn-danger", "btn-cancel-appointment");
+                  completeButton.textContent = "Complete Appointment";
+                  completeButton.addEventListener("click", function() {
+                      completeAppointment(appointment.id);
+                  });
+                  
+                  body.appendChild(title);
+                  body.appendChild(userDetails);
+                  body.appendChild(completeButton);
+                  
+                  card.appendChild(header);
+                  card.appendChild(body);
+                  
+                  container.appendChild(card);
+
+              });
+          });
+      }
+
+      function completeAppointment(appointmentId) {
+          // Send a GET request to the API to mark the appointment as completed
+          fetch(`serviceprovider/completeOrder/${appointmentId}`, {
+              method: 'GET',
+              headers: {
+                'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+              }
+          })
+          .then(response => {
+              if (response.ok) {
+                  // Show notification on successful completion
+                  showNotification('Appointment completed successfully!');
+                  
+                  const cardToRemove = document.getElementById(appointmentId);
+                  if (cardToRemove) {
+                      cardToRemove.style.transition = 'opacity 0.5s ease'; // Apply transition
+                      cardToRemove.style.opacity = '0'; // Fade out animation
+                      setTimeout(() => {
+                        cardToRemove.remove();
+                        console.log(`Appointment card with ID ${appointmentId} removed.`);
+                      }, 500); // Wait for the animation to finish
+                      return response.json();
+                  }
+              } else {
+                  throw new Error('Failed to complete appointment');
+              }
+          })
+          .catch(error => {
+              console.error('Error completing appointment:', error);
+          });
+      }
+
+      function deleteService(serviceId) {
+          // Send a GET request to the API to delete the service
+          fetch(`serviceprovider/deleteService/${serviceId}`, {
+              method: 'GET',
+              headers: {
+                'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+              }
+          })
+          .then(response => {
+              if (response.ok) {
+                  // Show notification on successful deletion
+                  showNotification('Service deleted successfully!');
+                  
+                  const cardToRemove = document.getElementById(serviceId);
+                  if (cardToRemove) {
+                      cardToRemove.style.transition = 'opacity 0.5s ease'; // Apply transition
+                      cardToRemove.style.opacity = '0'; // Fade out animation
+                      setTimeout(() => {
+                        cardToRemove.remove();
+                        console.log(`Service card with ID ${serviceId} removed.`);
+                      }, 500); // Wait for the animation to finish
+                      return response.json();
+                  }
+              } else {
+                  showNotification('Clear Clients First');
+                  throw new Error('Failed to delete service');
+              }
+          })
+          .catch(error => {
+              console.error('Error deleting service:', error);
+          });
+      }
+
+      async function fetchProfile() {
+        // Function to fetch profile
+      }
+
+      // Initial fetch
+      fetchAppointments();
+
+      async function verifyToken() {
+          if(!localStorage.getItem('accessToken')){
+              return window.location.href = '/login';
+          }
+        try {
+          const response = await fetch('/verify', {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+            }
+          });
+  
+          if (response.ok) {
+            const res=await response.json()
+            const username =res.user;
+  
+           document.querySelector('.navbar-brand').innerText = `${username} || ₹ ${res.credits}`;
+            
+          } else {
+            // Token is invalid, redirect to login page
+            window.location.href = '/login';
+          }
+        } catch (error) {
+          console.error('Error verifying token:', error);
+        }
+      }
+
+      // Call verifyToken function when the page loads
+      window.addEventListener('load', verifyToken);
+
+      function showNotification(text) {
+          const notification = document.getElementById('notification');
+          notification.textContent = text;
+          notification.classList.add('show');
+
+          setTimeout(() => {
+              notification.classList.remove('show');
+          }, 3000); // Hide notification after 3 seconds
+      }
+
+      // Function to show the create service form
+      function showCreateServiceForm() {
+          const container = document.getElementById('dashboard-container');
+          container.innerHTML = ""; // Clear previous content
+          
+          const card = document.createElement("div");
+          card.classList.add("card", "form-card");
+  
+          const header = document.createElement("div");
+          header.classList.add("card-header");
+          header.textContent = "Create Service";
+  
+          const body = document.createElement("div");
+          body.classList.add("card-body");
+          body.style.display = "flex";
+          body.style.flexDirection = "column";
+          body.style.alignItems = "center";
+  
+          const form = document.createElement("form");
+          form.id = "createServiceForm";
+  
+          const formGroup1 = document.createElement("div");
+          formGroup1.classList.add("form-group");
+  
+          const nameLabel = document.createElement("label");
+          nameLabel.setAttribute("for", "serviceName");
+          nameLabel.textContent = "Service Name:";
+  
+          const nameInput = document.createElement("input");
+          nameInput.setAttribute("type", "text");
+          nameInput.setAttribute("id", "serviceName");
+          nameInput.setAttribute("name", "serviceName");
+          nameInput.setAttribute("placeholder", "Enter service name");
+  
+          formGroup1.appendChild(nameLabel);
+          formGroup1.appendChild(nameInput);
+  
+          const formGroup2 = document.createElement("div");
+          formGroup2.classList.add("form-group");
+  
+          const descLabel = document.createElement("label");
+          descLabel.setAttribute("for", "serviceDesc");
+          descLabel.textContent = "Description:";
+  
+          const descInput = document.createElement("input");
+          descInput.setAttribute("type", "text");
+          descInput.setAttribute("id", "serviceDesc");
+          descInput.setAttribute("name", "serviceDesc");
+          descInput.setAttribute("placeholder", "Enter service description");
+  
+          formGroup2.appendChild(descLabel);
+          formGroup2.appendChild(descInput);
+  
+          const formGroup3 = document.createElement("div");
+          formGroup3.classList.add("form-group");
+  
+          const costLabel = document.createElement("label");
+          costLabel.setAttribute("for", "serviceCost");
+          costLabel.textContent = "Cost:";
+  
+          const costInput = document.createElement("input");
+          costInput.setAttribute("type", "number");
+          costInput.setAttribute("id", "serviceCost");
+          costInput.setAttribute("name", "serviceCost");
+          costInput.setAttribute("placeholder", "Enter service cost");
+  
+          formGroup3.appendChild(costLabel);
+          formGroup3.appendChild(costInput);
+  
+          const formGroup4 = document.createElement("div");
+          formGroup4.classList.add("form-group");
+  
+          const typeLabel = document.createElement("label");
+          typeLabel.setAttribute("for", "serviceType");
+          typeLabel.textContent = "Type:";
+  
+          const typeInput = document.createElement("input");
+          typeInput.setAttribute("type", "text");
+          typeInput.setAttribute("id", "serviceType");
+          typeInput.setAttribute("name", "serviceType");
+          typeInput.setAttribute("placeholder", "Enter service type");
+  
+          formGroup4.appendChild(typeLabel);
+          formGroup4.appendChild(typeInput);
+  
+          const formGroup5 = document.createElement("div");
+          formGroup5.classList.add("form-group");
+  
+          const fromTimeLabel = document.createElement("label");
+          fromTimeLabel.setAttribute("for", "serviceFromTime");
+          fromTimeLabel.textContent = "From Time:";
+  
+          const fromTimeInput = document.createElement("input");
+          fromTimeInput.setAttribute("type", "datetime-local");
+          fromTimeInput.setAttribute("id", "serviceFromTime");
+          fromTimeInput.setAttribute("name", "serviceFromTime");
+  
+          formGroup5.appendChild(fromTimeLabel);
+          formGroup5.appendChild(fromTimeInput);
+  
+          const formGroup6 = document.createElement("div");
+          formGroup6.classList.add("form-group");
+  
+          const toTimeLabel = document.createElement("label");
+          toTimeLabel.setAttribute("for", "serviceToTime");
+          toTimeLabel.textContent = "To Time:";
+  
+          const toTimeInput = document.createElement("input");
+          toTimeInput.setAttribute("type", "datetime-local");
+          toTimeInput.setAttribute("id", "serviceToTime");
+          toTimeInput.setAttribute("name", "serviceToTime");
+  
+          formGroup6.appendChild(toTimeLabel);
+          formGroup6.appendChild(toTimeInput);
+  
+          const submitButton = document.createElement("button");
+          submitButton.setAttribute("type", "submit");
+          submitButton.classList.add("btn", "btn-primary");
+          submitButton.textContent = "Create Service";
+  
+          submitButton.addEventListener("click", function(event) {
+              event.preventDefault();
+              // Call a function to handle form submission
+              createService();
+          });
+  
+          const cancelButton = document.createElement("button");
+          cancelButton.setAttribute("type", "button");
+          cancelButton.classList.add("btn", "btn-secondary");
+          cancelButton.textContent = "Cancel";
+  
+          cancelButton.addEventListener("click", function() {
+              // Call a function to cancel the form
+              fetchAppointments(); // Reload appointments
+          });
+  
+          form.appendChild(formGroup1);
+          form.appendChild(formGroup2);
+          form.appendChild(formGroup3);
+          form.appendChild(formGroup4);
+          form.appendChild(formGroup5);
+          form.appendChild(formGroup6);
+          form.appendChild(submitButton);
+          form.appendChild(cancelButton);
+  
+          body.appendChild(form);
+  
+          card.appendChild(header);
+          card.appendChild(body);
+  
+          container.appendChild(card);
+      }
+
+      // Function to create a service
+      function createService() {
+          const form = document.getElementById('createServiceForm');
+          const formData = new FormData(form);
+  
+          const requestBody = {};
+          for (const [key, value] of formData.entries()) {
+              requestBody[key] = value;
+          }
+  
+          // Send a POST request to the API to create the service
+          fetch('serviceprovider/createAppointment', {
+              method: 'POST',
+              headers: {
+                  'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(requestBody)
+          })
+          .then(response => {
+              if (response.ok) {
+                  // Show notification on successful service creation
+                  showNotification('Service created successfully!');
+                  
+                  // Reload appointments after creating the service
+                  fetchAppointments();
+              } else {
+                  console.log("res==>",response.json())
+                  throw new Error('Failed to create service');
+              }
+          })
+          .catch(error => {
+              console.error('Error creating service:', error);
+          });
+      }

@@ -1,5 +1,5 @@
 
-const {bookedAppointments,as_user}=require('../models');
+const {bookedAppointments,createAppointment,as_user,as_service_provider}=require('../models');
 
 const handleMyAppointments=async (req,res)=>{
     const username=req.user;
@@ -7,9 +7,23 @@ const handleMyAppointments=async (req,res)=>{
 
         const user = await as_user.findOne({
             where: {
-              username: username
-            },include:[bookedAppointments]// Corrected model name
-          });
+                username: username
+            },
+            include: [
+                {
+                    model: bookedAppointments,
+                    include: [
+                        {
+                            model: createAppointment
+                        },
+                        {
+                            model: as_service_provider
+                        }
+                    ]
+                }
+            ]
+        });
+        
 
     if(!user){
         return res.status(400).json({'message':'no privilages to see or create'});

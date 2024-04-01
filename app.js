@@ -34,6 +34,9 @@ app.use('/refresh', require('./routes/refresh'));
 app.get('/dashboard',async(req,res)=>{
     res.render('dashboard');
 })
+app.get('/serviceproviderDashboard',async(req,res)=>{
+    res.render('serviceproviderDashboard');
+})
 
 
 

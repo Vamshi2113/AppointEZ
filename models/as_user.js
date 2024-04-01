@@ -18,6 +18,7 @@ module.exports = (sequelize, DataTypes) => {
       
       
       
+      
     }
 
     static createAsUser(roles_Id,username) {

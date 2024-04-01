@@ -16,6 +16,7 @@ module.exports = (sequelize, DataTypes) => {
       as_service_provider.hasMany(models.bookedAppointments,{ foreignKey:'serviceProviderId',onDelete: 'CASCADE' });
       as_service_provider.hasMany(models.orderhistory,{ foreignKey:'serviceProviderId',onDelete: 'CASCADE' });
       
+      
     }
 
     static createAsServiceProvider(roles_Id,username) {

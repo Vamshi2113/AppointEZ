@@ -1,4 +1,4 @@
-const {createAppointment ,as_service_provider, UserData } = require("../models");
+const {createAppointment ,as_service_provider, UserData,bookedAppointments } = require("../models");
 
 const handleDeleteService = async (req, res) => {
   const username = req.user;
@@ -9,13 +9,17 @@ const handleDeleteService = async (req, res) => {
         where:{
             username:username,
             id:id
-        }
+        },include:[
+          bookedAppointments
+        ]
     });
 
     if(myService){
+      if(!(myService.bookedAppointments.length === 0)){
+        return res.status(400).json({ 'message': 'Clear Clients First'});
+      }
         await myService.destroy();
-
-        return res.status(200).json({ 'message': 'deleted Service' });
+        return res.status(200).json({ 'message': 'deleted Service'});
     }else{
        return res.status(400).json({ 'message': 'Operation failed'}); 
     }

@@ -15,6 +15,7 @@ module.exports = (sequelize, DataTypes) => {
       bookedAppointments.belongsTo(models.createAppointment,{ foreignKey: 'createAppointmentId' ,onDelete: 'CASCADE'})
       bookedAppointments.belongsTo(models.as_user,{ foreignKey:'userId',onDelete: 'CASCADE' });
       bookedAppointments.belongsTo(models.as_service_provider,{ foreignKey:'serviceProviderId',onDelete: 'CASCADE' });
+      bookedAppointments.hasOne(models.currentholdings,{onDelete: 'CASCADE'})
     }
 
     static async deleteById(appointmentId) {

@@ -1,4 +1,5 @@
 
+const { json } = require('sequelize');
 const {createAppointment,as_service_provider}=require('../models');
 const handleMyCreatedAppointments=async (req,res)=>{
     const username=req.user;
@@ -13,8 +14,9 @@ const handleMyCreatedAppointments=async (req,res)=>{
     if(!serviceProvider){
         return res.status(400).json({'message':'no privilages to see or create'});
     }
+    console.log(serviceProvider)
 
-    return res.status(200).json({'message':serviceProvider.createAppointment})
+    return res.status(200).json({'message':serviceProvider.createAppointments})
 
 }catch(err){
     return res.status(400).json({'err':err})

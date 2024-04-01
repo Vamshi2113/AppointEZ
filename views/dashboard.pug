@@ -69,6 +69,7 @@ html(lang="en")
           margin-bottom: 20px;
           background-color: rgba(192, 192, 192, 0.3);
           border-radius: 30px;
+          transition: opacity 0.5s ease; /* Add opacity transition */
       }
       .card-header {
           text-align: center;
@@ -87,6 +88,25 @@ html(lang="en")
           width: 40%;
           border-radius: 35px;
           margin-top: 20px;
+      }
+      .notification {
+          position: fixed;
+          bottom: 30px;
+          left: 50%;
+          transform: translateX(-50%);
+          padding: 15px 30px;
+          border-radius: 10px;
+          background-color: #007bff;
+          color: #ffffff;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          opacity: 0;
+          visibility: hidden;
+          transition: opacity 0.5s ease, visibility 0.5s ease;
+          z-index: 1000;
+      }
+      .notification.show {
+          opacity: 1;
+          visibility: visible;
       }
 
   body
@@ -110,10 +130,16 @@ html(lang="en")
     .dashboard-container#dashboard-container
       //- Cards will be dynamically added here
 
+    .notification#notification
+      //- Notification container
+
   script(src="https://code.jquery.com/jquery-3.5.1.slim.min.js")
   script(src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js")
   script(src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js")
   script.
+    function myServices(){
+      window.location.href = '/serviceproviderDashboard';
+    }
     async function cancelAppointment(appointmentId) {
         try {
           const response = await fetch(`user/deleteAppointment/${appointmentId}`, {
@@ -126,10 +152,14 @@ html(lang="en")
           if (response.ok) {
             // Success message or any further action
             console.log(`Appointment ${appointmentId} cancelled successfully.`);
+            showNotification('Appointment cancelled successfully');
             const cardToRemove = document.getElementById(appointmentId);
             if (cardToRemove) {
-                cardToRemove.remove();
-                console.log(`Appointment card with ID ${appointmentId} removed.`);
+                cardToRemove.style.opacity = '0'; // Fade out animation
+                setTimeout(() => {
+                  cardToRemove.remove();
+                  console.log(`Appointment card with ID ${appointmentId} removed.`);
+                }, 500); // Wait for the animation to finish
             } else {
                 console.error(`Unable to find card with ID ${appointmentId} to remove.`);
             }
@@ -157,7 +187,7 @@ html(lang="en")
       })
       .then(data => {
         console.log("==",data.message)
-        generateCards(data.message); // Assuming data is an array of nearby services
+        fetchAppointments_generateCards(data.message); // Assuming data is an array of nearby services
       })
       .catch(error => {
         console.error('Error fetching booked appointments:', error);
@@ -180,7 +210,7 @@ html(lang="en")
       })
       .then(data => {
         console.log("==",data.message)
-        generateCards(data.message); // Assuming data is an array of nearby services
+        fetchNearbyServices_generateCards(data.message); // Assuming data is an array of nearby services
       })
       .catch(error => {
         console.error('Error fetching nearby services:', error);
@@ -189,13 +219,71 @@ html(lang="en")
 
     // Similar functions for other navbar options: fetchProfile, fetchSettings, myServices
 
-    function generateCards(data) {
+    function fetchAppointments_generateCards(data) {
+      const container = document.getElementById("dashboard-container");
+      container.innerHTML = ""; // Clear previous content
+      data.forEach(appointment => {
+          const card = document.createElement("div");
+          card.classList.add("card");
+          card.id= appointment.id;
+  
+          const header = document.createElement("div");
+          header.classList.add("card-header");
+          header.textContent = appointment.createAppointment.name;
+  
+          const body = document.createElement("div");
+          body.classList.add("card-body");
+  
+          const title = document.createElement("h5");
+          title.classList.add("card-title");
+          title.textContent = "Description";
+  
+          const description = document.createElement("p");
+          description.classList.add("card-text");
+          description.textContent = appointment.createAppointment.desc;
+  
+          const from_time = document.createElement("p");
+          from_time.classList.add("card-text");
+          from_time.textContent = "From Time: " + new Date(appointment.createAppointment.from_time).toLocaleString();
+  
+          const to_time = document.createElement("p");
+          to_time.classList.add("card-text");
+          to_time.textContent = "To Time: " + new Date(appointment.createAppointment.to_time).toLocaleString();
+  
+          const rating = document.createElement("p");
+          rating.classList.add("card-text");
+          rating.textContent = "Rating: " + (appointment.createAppointment.rating ? appointment.createAppointment.rating + " stars" : "N/A");
+  
+          const cancelButton = document.createElement("button");
+          cancelButton.type = "button";
+          cancelButton.classList.add("btn", "btn-danger", "btn-cancel-appointment");
+          cancelButton.textContent = "Cancel Appointment";
+          cancelButton.addEventListener("click", function() {
+              cancelAppointment(appointment.id);
+          });
+  
+          body.appendChild(title);
+          body.appendChild(description);
+          body.appendChild(from_time);
+          body.appendChild(to_time);
+          body.appendChild(rating);
+          body.appendChild(cancelButton);
+  
+          card.appendChild(header);
+          card.appendChild(body);
+  
+          container.appendChild(card);
+      });
+    }
+
+    function fetchNearbyServices_generateCards(data) {
       const container = document.getElementById("dashboard-container");
       container.innerHTML = ""; // Clear previous content
 
       data.forEach(appointment => {
         const card = document.createElement("div");
         card.classList.add("card");
+        card.id = appointment.id;
 
         const header = document.createElement("div");
         header.classList.add("card-header");
@@ -227,13 +315,16 @@ html(lang="en")
         }
         rating.textContent = "Rating: " + appointment.rating +" stars";
 
-        const cancelButton = document.createElement("button");
-        cancelButton.type = "button";
-        cancelButton.id = appointment.id;
-        cancelButton.classList.add("btn", "btn-danger", "btn-cancel-appointment");
-        cancelButton.textContent = "Cancel Appointment";
-        cancelButton.addEventListener("click", function() {
-            cancelAppointment(appointment.id);
+        const cost = document.createElement("p");
+        cost.classList.add("card-text");
+        cost.textContent = "cost: " + appointment.cost +" Credits";
+
+        const bookButton = document.createElement("button");
+        bookButton.type = "button";
+        bookButton.classList.add("btn", "btn-danger", "btn-cancel-appointment");
+        bookButton.textContent = "Book Appointment";
+        bookButton.addEventListener("click", function() {
+            bookAppointment(appointment.id);
         });
 
         body.appendChild(title);
@@ -241,7 +332,8 @@ html(lang="en")
         body.appendChild(from_time);
         body.appendChild(to_time);
         body.appendChild(rating);
-        body.appendChild(cancelButton);
+        body.appendChild(cost);
+        body.appendChild(bookButton);
 
         card.appendChild(header);
         card.appendChild(body);
@@ -249,6 +341,30 @@ html(lang="en")
         container.appendChild(card);
       });
     }
+    async function bookAppointment(appointmentId) {
+        try {
+            const response = await fetch(`user/bookAppointment/${appointmentId}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                }
+            });
+    
+            if (response.ok) {
+                // Success message or any further action
+                console.log(`Appointment ${appointmentId} booked successfully.`);
+                showNotification('Appointment booked successfully');
+            } else {
+                // Error handling
+                const res = await response.json(); // Parse the response body as JSON
+                showNotification(res.message); // Display the error message
+                console.error('Failed to book appointment:', res.message);
+            }
+        } catch (error) {
+            console.error('Error booking appointment:', error);
+        }
+    }
+
 
     function logout() {
       // Code to handle logout
@@ -277,7 +393,7 @@ html(lang="en")
           const res=await response.json()
           const username =res.user;
 
-         document.querySelector('.navbar-brand').innerText = `User Dashboard - ${username}`;
+         document.querySelector('.navbar-brand').innerText = `${username} || ₹ ${res.credits}`;
           
         } else {
           // Token is invalid, redirect to login page
@@ -290,3 +406,14 @@ html(lang="en")
 
     // Call verifyToken function when the page loads
     window.addEventListener('load', verifyToken);
+
+    // Notification function
+    function showNotification(text) {
+        const notification = document.getElementById('notification');
+        notification.textContent = text;
+        notification.classList.add('show');
+
+        setTimeout(() => {
+            notification.classList.remove('show');
+        }, 1500); // Hide notification after 3 seconds
+    }

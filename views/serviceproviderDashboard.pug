@@ -8,9 +8,6 @@ html(lang="en")
     
     style.
       body {
-          background-image: url('../static/rylan-hill-3o6NXErKXwo-unsplash.jpg');
-          background-size: cover;
-          background-position: center;
           display: flex;
           justify-content: center;
           align-items: center;
@@ -18,7 +15,40 @@ html(lang="en")
           height: 100vh;
           margin: 0;
           padding: 0;
+          overflow: hidden;
       }
+      .background-container {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          z-index: -1;
+          overflow: hidden;
+      }
+      .background-image {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 200%;
+          height: 100%;
+          background-image: url('../static/FINAL.LOGO.png');
+          background-size: contain;
+          background-position: center;
+          animation: moveBackground 60s linear infinite;
+      }
+      .background-image:nth-child(2) {
+          left: 100%;
+      }
+      @keyframes moveBackground {
+          0% {
+              transform: translateX(0);
+          }
+          100% {
+              transform: translateX(-50%);
+          }
+      }
+    style.
       .navbar {
           background-color: rgba(255, 255, 255, 0.5);
           width: 100%;
@@ -135,6 +165,9 @@ html(lang="en")
       }
 
   body
+    .background-container
+      .background-image
+      .background-image
     nav.navbar.navbar-expand-lg.navbar-light
       a.navbar-brand(href="#") Admin Dashboard
       button.navbar-toggler(type="button", data-toggle="collapse", data-target="#navbarNav", aria-controls="navbarNav", aria-expanded="false", aria-label="Toggle navigation")
@@ -147,8 +180,6 @@ html(lang="en")
             a.nav-link(onclick="fetchClients()") Current Clients
           li.nav-item
             a.nav-link(onclick="fetchProfile()") Profile
-          li.nav-item
-             a.nav-link(onclick="user()") User
           li.nav-item 
              a.nav-link(onclick="showCreateServiceForm()") Create Appointment
 
@@ -250,7 +281,7 @@ html(lang="en")
       
               const cost = document.createElement("p");
               cost.classList.add("card-text");
-              cost.textContent = "Cost: $" + appointment.cost;
+              cost.textContent = "Cost:  ₹" + appointment.cost;
       
               const location = document.createElement("p");
               location.classList.add("card-text");
@@ -393,7 +424,106 @@ html(lang="en")
       }
 
       async function fetchProfile() {
-        // Function to fetch profile
+          try {
+              const response = await fetch('serviceprovider/profile', {
+                  method: 'GET',
+                  headers: {
+                      'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+                      'Accept': 'application/json'
+                  }
+              });
+      
+              if (!response.ok) {
+                  throw new Error('Failed to fetch profile');
+              }
+      
+              const data = await response.json();
+              console.log("Profile Data:", data.UserData); // Optional: log the fetched profile data
+      
+              // Call function to generate profile card with the fetched data
+              generateProfileCard(data.UserData);
+          } catch (error) {
+              console.error('Error fetching profile:', error);
+          }
+      }
+      
+      function generateProfileCard(userData) {
+          const container = document.getElementById("dashboard-container");
+          container.innerHTML = ""; // Clear previous content
+      
+          const card = document.createElement("div");
+          card.classList.add("card", "form-card");
+      
+          const header = document.createElement("div");
+          header.classList.add("card-header");
+          header.textContent = "User Profile";
+      
+          const body = document.createElement("div");
+          body.classList.add("card-body");
+          body.style.display = "flex";
+          body.style.flexDirection = "column";
+          body.style.alignItems = "center";
+      
+          const userIdLabel = document.createElement("p");
+          userIdLabel.classList.add("card-text");
+          userIdLabel.textContent = `User ID: ${userData.id}`;
+      
+          const usernameLabel = document.createElement("p");
+          usernameLabel.classList.add("card-text");
+          usernameLabel.textContent = `Username: ${userData.username}`;
+      
+          const emailLabel = document.createElement("p");
+          emailLabel.classList.add("card-text");
+          emailLabel.textContent = `Email: ${userData.email}`;
+      
+          const coordinatesLabel = document.createElement("p");
+          coordinatesLabel.classList.add("card-text");
+          coordinatesLabel.textContent = `Coordinates: ${userData.coordinates}`;
+      
+          const phoneNumberLabel = document.createElement("p");
+          phoneNumberLabel.classList.add("card-text");
+          phoneNumberLabel.textContent = `Phone Number: ${userData.phoneNumber}`;
+      
+          const ageLabel = document.createElement("p");
+          ageLabel.classList.add("card-text");
+          ageLabel.textContent = `Age: ${userData.age}`;
+      
+          const creditsLabel = document.createElement("p");
+          creditsLabel.classList.add("card-text");
+          creditsLabel.textContent = `Credits:  ₹ ${userData.credits}`;
+      
+          const genderLabel = document.createElement("p");
+          genderLabel.classList.add("card-text");
+          genderLabel.textContent = `Gender: ${userData.gender}`;
+      
+          const cityLabel = document.createElement("p");
+          cityLabel.classList.add("card-text");
+          cityLabel.textContent = `City: ${userData.city}`;
+      
+          const createdAtLabel = document.createElement("p");
+          createdAtLabel.classList.add("card-text");
+          createdAtLabel.textContent = `Created At: ${new Date(userData.createdAt).toLocaleString()}`;
+      
+          const updatedAtLabel = document.createElement("p");
+          updatedAtLabel.classList.add("card-text");
+          updatedAtLabel.textContent = `Updated At: ${new Date(userData.updatedAt).toLocaleString()}`;
+      
+          body.appendChild(userIdLabel);
+          body.appendChild(usernameLabel);
+          body.appendChild(emailLabel);
+          body.appendChild(coordinatesLabel);
+          body.appendChild(phoneNumberLabel);
+          body.appendChild(ageLabel);
+          body.appendChild(creditsLabel);
+          body.appendChild(genderLabel);
+          body.appendChild(cityLabel);
+          body.appendChild(createdAtLabel);
+          body.appendChild(updatedAtLabel);
+      
+          card.appendChild(header);
+          card.appendChild(body);
+      
+          container.appendChild(card);
       }
 
       // Initial fetch
@@ -591,8 +721,6 @@ html(lang="en")
   
           container.appendChild(card);
       }
-
-      // Function to create a service
       function createService() {
           const form = document.getElementById('createServiceForm');
           const formData = new FormData(form);
@@ -628,3 +756,9 @@ html(lang="en")
               console.error('Error creating service:', error);
           });
       }
+    script.
+      $(document).ready(function () {
+          $('.navbar-toggler').click(function () {
+              $('.navbar-toggler').toggleClass('change')
+          })
+      });

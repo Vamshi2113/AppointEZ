@@ -14,4 +14,5 @@ router.get('/myAppointments',verifyRoles('serviceProvider'),handleMyCreatedAppoi
 router.get('/deleteService/:id',verifyRoles('serviceProvider'),handleDeleteService);
 router.get('/currentClients',verifyRoles('serviceProvider'),handleMyCurrentClients);
 router.get('/completeOrder/:id',verifyRoles('serviceProvider'),handleCompleteAppointment);
+router.get('/profile',verifyRoles('serviceProvider'),handleMyCreatedAppointments);
 module.exports = router;

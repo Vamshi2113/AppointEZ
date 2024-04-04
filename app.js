@@ -26,6 +26,9 @@ app.use(express.json());
 app.use(cookieParser());
 
 
+app.get('/',(req,res)=>{
+    res.redirect('/login');
+})
 app.use('/auth',require('./routes/register'));
 app.use('/login',require('./routes/login'));
 app.use('/refresh', require('./routes/refresh'));
@@ -37,8 +40,6 @@ app.get('/dashboard',async(req,res)=>{
 app.get('/serviceproviderDashboard',async(req,res)=>{
     res.render('serviceproviderDashboard');
 })
-
-
 
 
 // app.use(verifyJWT);
@@ -61,7 +62,7 @@ app.use('/verify',verifyJWT,require('./routes/auth.js'))
 
 
 
-sequelize.sync() // Remove { force: true } to prevent dropping tables
+sequelize.sync({ force: true }) // Remove { force: true } to prevent dropping tables
     .then(() => {
         console.log('Database synced');
     })

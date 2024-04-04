@@ -13,4 +13,6 @@ router.get('/findAppointments',verifyRoles('user','serviceProvider'),handlefindA
 router.get('/deleteAppointment/:id',verifyRoles('user','serviceProvider'),handleDeleteAppointment)
 router.get('/bookAppointment/:id',verifyRoles('user','serviceProvider'),handleBookAppointment)
 router.get('/dashboard',verifyRoles('user','serviceProvider'),handleGetDashboard)
+router.get('/profile',verifyRoles('user','serviceProvider'),handleMyAppointments);
+
 module.exports = router;

@@ -1,6 +1,6 @@
 const express=require('express');
 const app=express();
-const port=80;
+const port=3000;
 const path=require('path');
 require('dotenv').config();
 const { sequelize,user,UserData,as_user } = require('./models');
@@ -21,7 +21,7 @@ app.set('views',path.join(__dirname,'views'));
 
 
 
-app.use(express.urlencoded());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
 
@@ -62,7 +62,7 @@ app.use('/verify',verifyJWT,require('./routes/auth.js'))
 
 
 
-sequelize.sync({ force: true }) // Remove { force: true } to prevent dropping tables
+sequelize.sync() // Remove { force: true } to prevent dropping tables
     .then(() => {
         console.log('Database synced');
     })
